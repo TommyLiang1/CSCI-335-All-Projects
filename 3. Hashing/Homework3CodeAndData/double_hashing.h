@@ -134,7 +134,7 @@ public:
 
     void setR(int num)
     {
-        R = num;
+        R_ = num;
     }
 
 private:
@@ -153,7 +153,7 @@ private:
     std::vector<HashEntry> array_;
     size_t current_size_;
     mutable int num_collisions_ = 0;
-    int R = 89;
+    int R_ = 89;
 
     bool IsActive(size_t current_pos) const
     {
@@ -202,7 +202,7 @@ private:
     size_t InternalDoubleHash(const HashedObj &x) const
     {
         static std::hash<HashedObj> hf;
-        return R - (hf(x) % R);
+        return R_ - (hf(x) % R_);
     }
 };
 
