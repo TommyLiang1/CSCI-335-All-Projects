@@ -11,7 +11,6 @@
 #include <unordered_map>
 #include <list>
 #include <cfloat>
-#include <queue>
 
 //This file is for your graph implementation.
 //Add everything you need in between the "ifndef and "endif" statements.
@@ -36,7 +35,7 @@ class Vertex{
         Vertex(int value)
         {
             value_ = value;
-            distance_ = 0;
+            distance_ = std::numeric_limits<double>::max();
             isknown_ = false;
             path_ = nullptr;
         }
@@ -102,31 +101,33 @@ class Graph{
         //Dijkstra method
         void Dijkstra(int start)
         {
+            BinaryHeap<int> queue;
+            vector<double> path;
             map_[start]->distance_ = 0;
-            std::priority_queue<Vertex *, std::vector<Vertex *>, VertexDistance> queue;
-            queue.push(map_[start]);
+            queue.insert(start);
 
             //Dijkstra implementation
-            while(!queue.empty())
+            while(!queue.isEmpty())
             {
-                Vertex *v1 = queue.top();
-                queue.pop();
+                int min = queue.findMin();
+                Vertex *v1 = map_[min];
                 v1->isknown_ = true;
+                queue.deleteMin();
 
-                for(unsigned i = 0; i < v1->adjacent_nodes_.size(); i++)
+                for(unsigned int i = 0; i < v1->adjacent_nodes_.size(); i++)
                 {
                     int num_vertex = v1->adjacent_nodes_[i].node_;
                     Vertex *v2 = map_[num_vertex];
-                    
+                    double weight = v1->adjacent_nodes_[i].weight_;
+
                     if(!v2->isknown_)
                     {
-                        double weight = v1->adjacent_nodes_[i].weight_;
                         if(v1->distance_ + weight < v2->distance_)
                         {
                             v2->distance_ = v1->distance_ + weight;
                             v2->path_ = v1;
+                            queue.insert(v2->value_);
                         }
-                        queue.push(v2);
                     }
                 }
             }
@@ -137,7 +138,7 @@ class Graph{
                 double smallest_distance = map_[i]->distance_;
 
                 PrintPath(map_[i]);
-                if(smallest_distance != numeric_limits<int>::max())
+                if(smallest_distance != std::numeric_limits<double>::max())
                 {
                     cout.precision(1);
                     cout << fixed;
