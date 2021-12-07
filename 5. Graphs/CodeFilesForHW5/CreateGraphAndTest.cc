@@ -13,8 +13,7 @@
 
 using namespace std;
 
-template <typename Object>
-void graphTestDriver(int argc, char **argv, Graph<Object> &graph) {
+void graphTestDriver(int argc, char **argv) {
     
     //Begin your code here. Feel free to add any helper functions or classes you need,
     //as long as we only have to call this function to run the specified assignment.
@@ -29,20 +28,22 @@ void graphTestDriver(int argc, char **argv, Graph<Object> &graph) {
       exit(1);
     }
 
+    int num_of_vertices;
+    input_file >> num_of_vertices;
+    Graph map_graph(num_of_vertices);
+    
     string line;
-    Object vertex, new_vertex;
+    int vertex, new_vertex;
     double new_weight;
 
-    getline(input_file, line); //get first line which contains the number of vertices
     while(getline(input_file, line))
     {
       if(!line.empty())
       {
         std::stringstream ss(line);
         ss >> vertex;
-        graph.AddVertex(vertex);
         while(ss >> new_vertex && ss >> new_weight)
-          graph.AddConnection(vertex, new_vertex, new_weight);
+          map_graph.AddConnection(vertex, new_vertex, new_weight);
       }
     }
     input_file.close();
@@ -56,17 +57,13 @@ void graphTestDriver(int argc, char **argv, Graph<Object> &graph) {
     }
 
     int v1, v2;
-
     while(getline(a_input_file, line))
     {
       std::stringstream ss(line);
       ss >> v1;
       ss >> v2;
-      double weightOfEdge = graph.WeightOfEdge(v1, v2);
-      if(weightOfEdge != DBL_MAX) //v1 and v2 are connected
-        cout << v1 << " " << v2 << ": connected " << weightOfEdge << endl;
-      else
-        cout << v1 << " " << v2 << ": not_connected " << endl;
+      //Does all the printing in IsConnected()
+      map_graph.IsConnected(v1,v2);
     }
 }
 
@@ -76,8 +73,6 @@ int main(int argc, char **argv) {
 		return 0;
     }
 
-    Graph<int> map_graph;
-    graphTestDriver(argc, argv, map_graph);
-
+    graphTestDriver(argc, argv);
     return 0;
 }

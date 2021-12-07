@@ -6,13 +6,12 @@
 
 using namespace std;
 
-template <typename Object>
-void pathfindDriver(int argc, char **argv, Graph<Object> &graph) {
+void pathfindDriver(int argc, char **argv) {
     
     //Begin your code here. Feel free to add any helper functions or classes you need,
     //as long as we only have to call this function to run the specified assignment.
     string file_name = argv[1];
-    int vertex = atoi(argv[2]);
+    int num_of_vertex = atoi(argv[2]);
 
     std::ifstream input_file;
     input_file.open(file_name);
@@ -21,29 +20,25 @@ void pathfindDriver(int argc, char **argv, Graph<Object> &graph) {
       cerr << "File failed to open" << endl;
       exit(1);
     }
-    
+
+    Graph map_graph(num_of_vertex);
     string line;
-    Object vertex, new_vertex;
+    int vertex, new_vertex;
     double new_weight;
-    getline(input_file, line);
+
     while(getline(input_file, line))
     {
       if(!line.empty())
+      {
         std::stringstream ss(line);
         ss >> vertex;
-        graph.AddVertex(vertex);
         while(ss >> new_vertex && ss >> new_weight)
-          graph.AddConnection(vertex, new_vertex, new_weight);
+          map_graph.AddConnection(vertex, new_vertex, new_weight);
+      }
     }
     input_file.close();
 
-    graph.Dijkstra(vertex);
-    int count = 1;
-    while(graph.Contains(count))
-    {
-      graph.GetShortestPath(count);
-      ++count;
-    }
+    map_graph.Dijkstra(vertex);
 }
 
 int main(int argc, char **argv) {
@@ -52,8 +47,6 @@ int main(int argc, char **argv) {
 		return 0;
     }
 
-    Graph<int> graph;
-    pathfindDriver(argc, argv, graph);
-
+    pathfindDriver(argc, argv);
     return 0;
 }

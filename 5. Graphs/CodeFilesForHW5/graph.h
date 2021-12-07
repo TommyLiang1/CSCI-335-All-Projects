@@ -16,144 +16,136 @@
 //This file is for your graph implementation.
 //Add everything you need in between the "ifndef and "endif" statements.
 //Do not put anything outside those statements
-template <typename Object>
 class Graph;
 
-template <typename Object>
+class AdjacentNode{
+public: 
+    int node_;
+    double weight_; 
+
+    AdjacentNode(const int &node, const double &weight): node_{node}, weight_{weight}
+    {
+    }
+};
+
 class Vertex{
     public:
-        friend class Graph<Object>;
         Vertex() = default;
         ~Vertex() = default;
         //Constructor for Vertex class given the vertex value
-        Vertex(Object value)
+        Vertex(int value)
         {
             value_ = value;
             distance_ = 0;
             isknown_ = false;
-            start_vertex_ = false;
-            prev_path_ = nullptr;
+            path_ = nullptr;
         }
-        //accessor method for private member distance_
-        int GetDistance()
-        {
-            return distance_;
-        }
-    private:
-        Object value_;
+        int value_;
         double distance_;
         bool isknown_;
-        bool start_vertex_;
-        Vertex<Object> *prev_path_;
-        std::list<std::pair< Vertex<Object>*, double>> adjacent_nodes_;
+        Vertex *path_;
+        vector<AdjacentNode> adjacent_nodes_;
 };
 
-template <typename Object>
 class VertexDistance{
  public:
- 	bool operator()(const Vertex<Object> *lhs, const Vertex<Object> * rhs) const{
+ 	bool operator()(const Vertex *lhs, const Vertex *rhs) const{
  		//defined to aid with the priority queue for Dijkstra method
- 		return lhs->GetDistance() > rhs->GetDistance(); 
+ 		return lhs->distance_ > rhs->distance_; 
  	}
 };
 
-template <typename Object>
 class Graph{
     public:
         Graph() = default;
         ~Graph() = default;
-
-        //AddVertex function
-        bool AddVertex(Object v1)
-        {
-            if(map_.find(v1) == map_.end())
-            {
-                map_[v1] = Vertex<Object>(v1);
-                return true;
-            }
-            return false;
-        }
+        Graph(int numVertices) : map_(++numVertices)
+	    {
+	    	for (int i = 1; i < numVertices + 1; i++)
+	    		map_[i] = new Vertex(i);
+	    }
 
         //AddConnection function
-        void AddConnection(Object v1, Object v2, double weight)
+        void AddConnection(int v1, int v2, double weight)
         {
-            if(map_.find(v1) == map_.end())
-                map_[v1] = Vertex<Object>(v1);
-            if(map_.find(v2) == map_.end())
-                map_[v2] = Vertex<Object>(v2);
-            Vertex<Object> *temp = &map_[v2];
-            std::pair<Vertex<Object>*, double> new_connection = std::make_pair(temp, weight);
-            map_[v1].adjacent_nodes_.push_back(new_connection);
+            AdjacentNode adjNode(v2, weight);
+            map_[v1]->adjacent_nodes_.push_back(adjNode);
         }
 
-        double WeightOfEdge(Object &v1, Object &v2) const
+        //checks if two vertices are connected or not and completes part 1 to Homework 5
+        void IsConnected(const int &v1, const int &v2)
         {
-            auto a = map_.find(v1);
-            if(a != map_.end())
+            bool result = false;
+            size_t size = map_[v1]->adjacent_nodes_.size();
+            for(unsigned i = 0; i < size; i++)
             {
-                auto b = a->second.adjacent_nodes_.begin();
-                auto aEnd = a->second.adjacent_nodes_.end();
-                while(b != aEnd)
+                if(map_[v1]->adjacent_nodes_[i].node_ == v2)
                 {
-                    if(b->first->value_ == v2)
-                        return b->second;
-                    b++;
+                    result = true;
+                    cout << v1 << " " << v2 << ": connected " << map_[v1]->adjacent_nodes_[i].weight_ << endl;
+                    break;
                 }
             }
-            return DBL_MAX;
+            if(!result)
+                cout << v1 << " " << v2 << ": not_connected " << endl;
         }
 
-        //checks if two vertices are connected or not
-        bool IsConnected(const Object &v1, const Object v2)
-        {
-            if(map_.find(v1) == map_.end() || map_.find(v2) == map_.end())
-                return false;
-            for(auto it = map_[v1].adjacent_nodes_.begin(); it != map_[v1].adjacent_nodes_.end(); ++it)
-                if(it->first->id_ == v2)
-                    return true;
-        }
+        // helper method for Dijkstra
+        void PrintPath(Vertex* v1) {
+			if (v1->path_ != nullptr) {
+				//next vertex
+				PrintPath(v1->path_);
+			}
+			cout << v1->value_ << " ";
+		}
 
         //Dijkstra method
-        void Dijkstra(Object start)
+        void Dijkstra(int start)
         {
-            std::priority_queue<Vertex<Object> *, std::vector<Vertex<Object> *>, VertexDistance<Object>> queue;
-            for(auto it = map_.begin(); it != map_.end(); ++it)
-                Reset(it->second);
-            //setting up priority queue
-            map_[start].distance_ = 0.0;
-            Vertex<Object> *v1 = &map_[start];
-            v1->start_vertex_ = true;
-            queue.push_back(v1);
+            map_[start]->distance_ = 0;
+            std::priority_queue<Vertex *, std::vector<Vertex *>, VertexDistance> queue;
+            queue.push(map_[start]);
+
             //Dijkstra implementation
-            while(true)
+            while(!queue.empty())
             {
-                bool finished = false;
-                while(!queue.empty() && !finished)
-                {
-                    v1 = queue.top();
-                    queue.pop();
-                    if(!v1->isknown_)
-                        finished = true;
-                }
-                if(!finished)
-                    break;
+                Vertex *v1 = queue.top();
+                queue.pop();
                 v1->isknown_ = true;
-                for(auto it = v1->adjacent_nodes_.begin(); it != v1->adjacent_nodes_.end(); ++it)
+
+                for(unsigned i = 0; i < v1->adjacent_nodes_.size(); i++)
                 {
-                    if(v1->distance_ + it->second < it->first->distance_)
+                    int num_vertex = v1->adjacent_nodes_[i].node_;
+                    Vertex *v2 = map_[num_vertex];
+                    
+                    if(!v2->isknown_)
                     {
-                        it->first->distance_ = v1->distance_ + it->second;
-                        it->first->prev_path_ = v1;
-                        queue.push_back(it->first);
+                        double weight = v1->adjacent_nodes_[i].weight_;
+                        if(v1->distance_ + weight < v2->distance_)
+                        {
+                            v2->distance_ = v1->distance_ + weight;
+                            v2->path_ = v1;
+                        }
+                        queue.push(v2);
                     }
                 }
             }
-        }
 
-        //contains method for map_
-        bool Contains(const Object &vertex) const
-        {
-            return map_.find(vertex) != map_.end();
+            for(unsigned i = 1; i < map_.size(); i++)
+            {
+                cout << map_[i]->value_ << ": ";
+                double smallest_distance = map_[i]->distance_;
+
+                PrintPath(map_[i]);
+                if(smallest_distance != numeric_limits<int>::max())
+                {
+                    cout.precision(1);
+                    cout << fixed;
+                    cout << "Cost: " << smallest_distance << endl;
+                }
+                else
+                    cout << "not_possible" << endl;
+            }
         }
 
         //accessor method for private member num_vertices_
@@ -162,15 +154,8 @@ class Graph{
             return map_.size();
         }
 
-        void Reset(Vertex<Object> v1)
-        {
-            v1.distance_ = DBL_MAX;
-            v1.isknown_ = false;
-            v1.prev_path_ = nullptr;
-            v1.start_vertex_ = false;
-        }
     private:
-        std::unordered_map<Object, Vertex<Object>> map_;
+        vector<Vertex*> map_;
         size_t num_vertices_;
 };
 
