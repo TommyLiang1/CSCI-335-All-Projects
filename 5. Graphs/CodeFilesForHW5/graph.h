@@ -13,9 +13,9 @@
 #include <cfloat>
 #include <limits>
 
-//This file is for your graph implementation.
-//Add everything you need in between the "ifndef and "endif" statements.
-//Do not put anything outside those statements
+// This file is for your graph implementation.
+// Add everything you need in between the "ifndef and "endif" statements.
+// Do not put anything outside those statements
 class Graph;
 
 class AdjacentNode
@@ -34,7 +34,7 @@ class Vertex
 public:
     Vertex() = default;
     ~Vertex() = default;
-    //Constructor for Vertex class given the vertex value
+    // Constructor for Vertex class given the vertex value
     Vertex(int value)
     {
         value_ = value;
@@ -54,7 +54,7 @@ class VertexDistance
 public:
     bool operator()(const Vertex *lhs, const Vertex *rhs) const
     {
-        //defined to aid with the priority queue for Dijkstra method
+        // defined to aid with the priority queue for Dijkstra method
         return lhs->distance_ > rhs->distance_;
     }
 };
@@ -70,14 +70,14 @@ public:
             map_[i] = new Vertex(i);
     }
 
-    //AddConnection function
+    // AddConnection function
     void AddConnection(int v1, int v2, double weight)
     {
         AdjacentNode adjNode(v2, weight);
         map_[v1]->adjacent_nodes_.push_back(adjNode);
     }
 
-    //checks if two vertices are connected or not and completes part 1 to Homework 5
+    // checks if two vertices are connected or not and completes part 1 to Homework 5
     void IsConnected(const int &v1, const int &v2)
     {
         bool result = false;
@@ -100,13 +100,13 @@ public:
     {
         if (v1->path_ != nullptr)
         {
-            //next vertex
+            // next vertex
             PrintPath(v1->path_);
         }
         cout << v1->value_ << " ";
     }
 
-    //Dijkstra method
+    // Dijkstra method
     void Dijkstra(int start)
     {
         BinaryHeap<int> queue;
@@ -114,7 +114,7 @@ public:
         map_[start]->distance_ = 0;
         queue.insert(start);
 
-        //Dijkstra implementation
+        // Dijkstra implementation
         while (!queue.isEmpty())
         {
             int min = queue.findMin();

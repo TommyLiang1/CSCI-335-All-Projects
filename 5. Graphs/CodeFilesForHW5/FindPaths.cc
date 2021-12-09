@@ -1,3 +1,8 @@
+// Homework 5
+// Find Paths
+// Tommy Liang
+// This is the file that contains the driver for part 2 of Homework 5
+
 #include <iostream>
 #include "graph.h"
 #include <fstream>
@@ -9,8 +14,8 @@ using namespace std;
 void pathfindDriver(int argc, char **argv)
 {
 
-  //Begin your code here. Feel free to add any helper functions or classes you need,
-  //as long as we only have to call this function to run the specified assignment.
+  // Begin your code here. Feel free to add any helper functions or classes you need,
+  // as long as we only have to call this function to run the specified assignment.
   string file_name = argv[1];
   int start_vertex = atoi(argv[2]);
 
@@ -25,11 +30,13 @@ void pathfindDriver(int argc, char **argv)
   string size;
   getline(input_file, size);
 
+  // Create Graph
   Graph map_graph(stoi(size));
   string line;
   int vertex, new_vertex;
   double new_weight;
 
+  // Add edges to graph
   while (getline(input_file, line))
   {
     std::stringstream ss(line);
@@ -39,6 +46,7 @@ void pathfindDriver(int argc, char **argv)
   }
   input_file.close();
 
+  // Run Dijkstra
   map_graph.Dijkstra(start_vertex);
 }
 
