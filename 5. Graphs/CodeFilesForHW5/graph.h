@@ -49,16 +49,6 @@ public:
     vector<AdjacentNode> adjacent_nodes_;
 };
 
-class VertexDistance
-{
-public:
-    bool operator()(const Vertex *lhs, const Vertex *rhs) const
-    {
-        // defined to aid with the priority queue for Dijkstra method
-        return lhs->distance_ > rhs->distance_;
-    }
-};
-
 class Graph
 {
 public:
@@ -110,7 +100,6 @@ public:
     void Dijkstra(int start)
     {
         BinaryHeap<int> queue;
-        vector<double> path;
         map_[start]->distance_ = 0;
         queue.insert(start);
 
